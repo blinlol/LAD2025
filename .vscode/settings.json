@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "*.dbclient-js": "javascript",
-        "ncurses.h": "c"
+        "ncurses.h": "c",
+        "readline.h": "c"
     }
 }
