@@ -1,0 +1,62 @@
+--- main.c
++++ main.c
+@@ -9,6 +9,16 @@
+ char pass_char = '.';
+ char wall_char = '#';
+ 
++int clamp_rooms(int value) {
++    if (value < 2) {
++        return 2;
++    }
++    if (value > 50) {
++        return 50;
++    }
++    return value;
++}
++
+ int idx(int r, int c) {
+     return r * rooms + c;
+ }
+@@ -106,20 +116,36 @@
+     }
+ }
+ 
+-void configure_size(int argc, char **argv) {
+-    if (argc < 2) {
++void configure_symbols(const char *arg) {
++    if (!arg || arg[0] == '\0' || arg[1] == '\0') {
++        return;
++    }
++    pass_char = arg[0];
++    wall_char = arg[1];
++    if (pass_char == wall_char) {
++        wall_char = (wall_char == '#') ? '*' : '#';
++    }
++}
++
++void configure_size(const char *arg) {
++    if (!arg || *arg == '\0') {
+         return;
+     }
+     char *end = NULL;
+-    long val = strtol(argv[1], &end, 10);
+-    if (end == argv[1]) {
++    long val = strtol(arg, &end, 10);
++    if (end == arg) {
+         return;
+     }
+-    rooms = (int)val;
++    rooms = clamp_rooms((int)val);
+ }
+ 
+ int main(int argc, char **argv) {
+-    configure_size(argc, argv);
++    if (argc > 1) {
++        configure_symbols(argv[1]);
++    }
++    if (argc > 2) {
++        configure_size(argv[2]);
++    }
+     ensure_storage();
+ 
+     srand((unsigned int)time(NULL));

@@ -1,0 +1,37 @@
+--- main.c
++++ main.c
+@@ -139,16 +139,29 @@
+     rooms = clamp_rooms((int)val);
+ }
+ 
+-int main(int argc, char **argv) {
+-    if (argc > 1) {
+-        configure_symbols(argv[1]);
++unsigned int configure_seed(const char *arg) {
++    if (!arg || *arg == '\0') {
++        return (unsigned int)time(NULL);
++    }
++    char *end = NULL;
++    unsigned long val = strtoul(arg, &end, 10);
++    if (end == arg) {
++        return (unsigned int)time(NULL);
+     }
++    return (unsigned int)val;
++}
++
++int main(int argc, char **argv) {
++    unsigned int seed = configure_seed((argc > 1) ? argv[1] : NULL);
+     if (argc > 2) {
+-        configure_size(argv[2]);
++        configure_symbols(argv[2]);
++    }
++    if (argc > 3) {
++        configure_size(argv[3]);
+     }
+     ensure_storage();
+ 
+-    srand((unsigned int)time(NULL));
++    srand(seed);
+     init_maze();
+     carve_from(0, 0);
+     print_maze();

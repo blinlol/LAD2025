@@ -1,0 +1,142 @@
+--- main.c
++++ main.c
+@@ -2,11 +2,47 @@
+ #include <stdlib.h>
+ #include <time.h>
+ 
+-#define ROOMS 6
+-#define GRID (ROOMS * 2 + 1)
++int rooms = 6;
++int grid = 13;
++int *visited = NULL;
++char **maze = NULL;
++char pass_char = '.';
++char wall_char = '#';
+ 
+-int visited[ROOMS][ROOMS];
+-char maze[GRID][GRID + 1];
++int idx(int r, int c) {
++    return r * rooms + c;
++}
++
++void ensure_storage(void) {
++    grid = rooms * 2 + 1;
++    visited = calloc((size_t)rooms * rooms, sizeof(int));
++    if (!visited) {
++        perror("calloc");
++        exit(EXIT_FAILURE);
++    }
++    maze = malloc((size_t)grid * sizeof(*maze));
++    if (!maze) {
++        perror("malloc");
++        exit(EXIT_FAILURE);
++    }
++    for (int r = 0; r < grid; ++r) {
++        maze[r] = malloc((size_t)grid + 1);
++        if (!maze[r]) {
++            perror("malloc");
++            exit(EXIT_FAILURE);
++        }
++    }
++}
++
++void free_storage(void) {
++    if (maze) {
++        for (int r = 0; r < grid; ++r) {
++            free(maze[r]);
++        }
++        free(maze);
++    }
++    free(visited);
++}
+ 
+ void shuffle(int *arr, size_t n) {
+     for (size_t i = n - 1; i > 0; --i) {
+@@ -18,7 +54,7 @@
+ }
+ 
+ void carve_from(int r, int c) {
+-    visited[r][c] = 1;
++    visited[idx(r, c)] = 1;
+     int dirs[4] = {0, 1, 2, 3};
+     shuffle(dirs, 4);
+ 
+@@ -34,10 +70,10 @@
+             case 3: nc = c - 1; break;
+         }
+ 
+-        if (nr < 0 || nr >= ROOMS || nc < 0 || nc >= ROOMS) {
++        if (nr < 0 || nr >= rooms || nc < 0 || nc >= rooms) {
+             continue;
+         }
+-        if (visited[nr][nc]) {
++        if (visited[idx(nr, nc)]) {
+             continue;
+         }
+ 
+@@ -45,33 +81,53 @@
+         int gc = 2 * c + 1;
+         int ngr = 2 * nr + 1;
+         int ngc = 2 * nc + 1;
+-        maze[(gr + ngr) / 2][(gc + ngc) / 2] = '.';
++        maze[(gr + ngr) / 2][(gc + ngc) / 2] = pass_char;
+         carve_from(nr, nc);
+     }
+ }
+ 
+ void init_maze(void) {
+-    for (int r = 0; r < GRID; ++r) {
+-        for (int c = 0; c < GRID; ++c) {
+-            maze[r][c] = '#';
++    for (int r = 0; r < grid; ++r) {
++        for (int c = 0; c < grid; ++c) {
++            maze[r][c] = wall_char;
+         }
+-        maze[r][GRID] = '\0';
++        maze[r][grid] = '\0';
+     }
+-    for (int r = 0; r < ROOMS; ++r) {
+-        for (int c = 0; c < ROOMS; ++c) {
+-            maze[2 * r + 1][2 * c + 1] = '.';
++    for (int r = 0; r < rooms; ++r) {
++        for (int c = 0; c < rooms; ++c) {
++            maze[2 * r + 1][2 * c + 1] = pass_char;
+         }
+     }
+ }
+ 
+-int main(void) {
++void print_maze(void) {
++    for (int r = 0; r < grid; ++r) {
++        puts(maze[r]);
++    }
++}
++
++void configure_size(int argc, char **argv) {
++    if (argc < 2) {
++        return;
++    }
++    char *end = NULL;
++    long val = strtol(argv[1], &end, 10);
++    if (end == argv[1]) {
++        return;
++    }
++    rooms = (int)val;
++}
++
++int main(int argc, char **argv) {
++    configure_size(argc, argv);
++    ensure_storage();
++
+     srand((unsigned int)time(NULL));
+     init_maze();
+     carve_from(0, 0);
++    print_maze();
+ 
+-    for (int r = 0; r < GRID; ++r) {
+-        puts(maze[r]);
+-    }
++    free_storage();
+     return 0;
+ }
+ 
