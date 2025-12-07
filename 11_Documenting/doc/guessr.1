@@ -1,0 +1,38 @@
+.TH guessr 1 "December 2025" "LAD2025" "User Commands"
+.SH NAME
+guessr \- binary guessing game that can speak Roman numerals
+.SH SYNOPSIS
+.B guessr
+.RI [ -r ]
+.RI [ --help ]
+.SH DESCRIPTION
+.B guessr
+plays a classic binary-search guessing game: the computer tries to deduce the
+number you picked between 1 and 100 by asking Yes/No questions. Answers must
+match the localized strings "Yes" and "No" so gettext-enabled translations
+continue to function.
+.PP
+When the
+.B -r
+flag is supplied every prompt, question, and the final answer are presented in
+Roman numerals. Internally the program still operates on decimal values and the
+roman table is limited to the 1\-100 range.
+.SH OPTIONS
+.TP
+.B -r
+Switch the user interface to Roman numerals.
+.TP
+.B --help
+Display the bilingual (English/Russian) help text and exit.
+.SH EXIT STATUS
+.TP
+.B 0
+The user asked for help or the guessing game finished normally.
+.TP
+.B 1
+Input errors or invalid command line arguments.
+.SH AUTHORS
+Written for the LAD2025 coursework exercises.
+.SH SEE ALSO
+.BR gettext (1)
+.BR locale (1)
