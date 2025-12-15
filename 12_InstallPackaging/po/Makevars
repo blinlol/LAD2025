@@ -1,0 +1,3 @@
+DOMAIN = greeter
+XGETTEXT_OPTIONS = --keyword=_ --from-code=UTF-8
+POFILES = $(wildcard *.po)
